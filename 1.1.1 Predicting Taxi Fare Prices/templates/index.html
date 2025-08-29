@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>NYC Taxi Fare Predictor</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>NYC Taxi Fare Prediction</h1>
+    <form method="post" action="/predict">
+      <label>Distance (miles):</label>
+      <input name="distance_miles" type="number" step="0.01" required>
+      <label>Passengers:</label>
+      <input name="passenger_count" type="number" min="1" max="6" step="1" required>
+      <label>Hour of Day (0–23):</label>
+      <input name="hour_of_day" type="number" min="0" max="23" required>
+      <label>Day of Week (0=Mon):</label>
+      <input name="day_of_week" type="number" min="0" max="6" required>
+      <label>Month:</label>
+      <input name="month" type="number" min="1" max="12" required>
+      <button type="submit">Predict Fare</button>
+    </form>
+    {% if prediction %}
+    <div class="result">
+      <h2>Estimated Fare: ${{ prediction }}</h2>
+    </div>
+    {% endif %}
+  </div>
+</body>
+</html>
