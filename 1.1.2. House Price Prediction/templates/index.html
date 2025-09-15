@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>House Price Prediction</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; }
+        .container {
+            width: 400px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        input, select, button {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+        }
+        h1 { text-align: center; }
+        .prediction {
+            margin-top: 15px;
+            font-size: 1.2em;
+            color: #333;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>House Price Prediction</h1>
+    <form method="POST">
+        <label for="MSSubClass">MSSubClass:</label>
+        <input type="number" name="MSSubClass" required>
+
+        <label for="MSZoning">MSZoning:</label>
+        <select name="MSZoning" required>
+            <option value="">--Select--</option>
+            <option value="RL">RL</option>
+            <option value="RM">RM</option>
+            <option value="C (all)">C (all)</option>
+            <option value="FV">FV</option>
+            <option value="RH">RH</option>
+        </select>
+
+        <label for="LotFrontage">LotFrontage:</label>
+        <input type="number" step="any" name="LotFrontage" required>
+
+        <label for="LotArea">LotArea:</label>
+        <input type="number" step="any" name="LotArea" required>
+
+        <label for="Street">Street:</label>
+        <select name="Street" required>
+            <option value="">--Select--</option>
+            <option value="Pave">Pave</option>
+            <option value="Grvl">Grvl</option>
+        </select>
+
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if prediction %}
+    <div class="prediction">
+        <strong>Predicted House Price:</strong>
+        ${{ "{:,.2f}".format(prediction) }}
+    </div>
+    {% endif %}
+</div>
+</body>
+</html>
