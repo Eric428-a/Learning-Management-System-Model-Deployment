@@ -1,0 +1,67 @@
+<!-- templates/index.html -->
+{% extends 'base.html' %}
+{% block content %}
+<section class="py-5 text-center">
+    <div class="mb-4">
+        <img src="{{ url_for('static', path='images/new_logo.png') }}" 
+             alt="Taxi Fare Logo" 
+             class="img-fluid"
+             style="max-height:150px;">
+        <p class="text-muted mt-2">v2025</p>
+    </div>
+
+    <h1 class="fw-bold mt-3">NYC TAXI FARE PREDICTION</h1>
+    <p class="lead">
+        Interactive demo for predicting taxi fares in New York City using a trained ML model.
+    </p>
+    <a class="btn btn-primary btn-lg mt-3" href="{{ url_for('demo') }}">
+        Try it now
+    </a>
+</section>
+
+<div class="container py-5">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Demo</h5>
+                    <p class="card-text">
+                        Upload trip data (CSV/JSON) or enter details manually to get predicted fares.
+                    </p>
+                    <a href="{{ url_for('demo') }}" class="btn btn-outline-primary">
+                        Open demo
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Dataset</h5>
+                    <p class="card-text">
+                        Learn about the NYC Taxi Fare dataset, its license, and see a sample preview.
+                    </p>
+                    <a href="{{ url_for('dataset') }}" class="btn btn-outline-primary">
+                        View dataset
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Tutorial</h5>
+                    <p class="card-text">
+                        Step-by-step guide for training, deploying, and testing the fare prediction model.
+                    </p>
+                    <a href="{{ url_for('tutorial') }}" class="btn btn-outline-primary">
+                        Open tutorial
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,187 @@
+<!-- templates/demo.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+  <!-- ================= Batch Scoring ================= -->
+  <div class="col-md-6">
+    <h3>Batch Scoring</h3>
+    <p>
+      Upload a CSV or JSON with the following columns:
+      <code>pickup_datetime</code>, <code>pickup_longitude</code>,
+      <code>pickup_latitude</code>, <code>dropoff_longitude</code>,
+      <code>dropoff_latitude</code>, <code>passenger_count</code>.
+    </p>
+
+    <form id="file-form">
+      <div class="mb-3">
+        <input class="form-control" type="file" id="file-input" name="file">
+      </div>
+      <button type="button" class="btn btn-primary" id="upload-btn">
+        Upload & Predict
+      </button>
+      <!-- Batch results -->
+      <div id="batch-results" class="alert alert-info mt-3 d-none"></div>
+    </form>
+
+    <hr>
+
+    <!-- ================= Manual Entry ================= -->
+    <h3>Manual Entry</h3>
+    <p class="text-muted">
+      Enter trip details below to get an instant fare prediction.
+    </p>
+
+    <form id="manual-form">
+      <div class="row g-2">
+        <div class="col-12 mb-2">
+          <label for="pickup_datetime" class="form-label">Pickup Date &amp; Time</label>
+          <input id="pickup_datetime" name="pickup_datetime" type="datetime-local"
+                 class="form-control" required>
+        </div>
+
+        <div class="col-6 mb-2">
+          <label for="pickup_longitude" class="form-label">Pickup Longitude</label>
+          <input id="pickup_longitude" name="pickup_longitude" type="number" step="0.0001"
+                 class="form-control" placeholder="-73.9850" required>
+        </div>
+
+        <div class="col-6 mb-2">
+          <label for="pickup_latitude" class="form-label">Pickup Latitude</label>
+          <input id="pickup_latitude" name="pickup_latitude" type="number" step="0.0001"
+                 class="form-control" placeholder="40.7580" required>
+        </div>
+
+        <div class="col-6 mb-2">
+          <label for="dropoff_longitude" class="form-label">Drop-off Longitude</label>
+          <input id="dropoff_longitude" name="dropoff_longitude" type="number" step="0.0001"
+                 class="form-control" placeholder="-73.9855" required>
+        </div>
+
+        <div class="col-6 mb-2">
+          <label for="dropoff_latitude" class="form-label">Drop-off Latitude</label>
+          <input id="dropoff_latitude" name="dropoff_latitude" type="number" step="0.0001"
+                 class="form-control" placeholder="40.7527" required>
+        </div>
+
+        <div class="col-12 mb-2">
+          <label for="passenger_count" class="form-label">Passenger Count</label>
+          <input id="passenger_count" name="passenger_count" type="number"
+                 min="1" max="8" class="form-control" placeholder="1" required>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <button type="submit" class="btn btn-success">
+          Predict Fare
+        </button>
+      </div>
+      <!-- Manual results -->
+      <div id="predicted-fare" class="alert alert-info mt-3 d-none"></div>
+    </form>
+  </div>
+
+  <!-- ================= Results ================= -->
+  <div class="col-md-6">
+    <h3>Other Info / Download</h3>
+    <div id="spinner" class="d-none text-center my-3">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <div class="mt-3">
+      <button id="download-csv" class="btn btn-outline-secondary d-none">
+        Download CSV
+      </button>
+      <button id="download-json" class="btn btn-outline-secondary d-none">
+        Download JSON
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// --- Manual Form Prediction ---
+document.getElementById("manual-form").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const fareDiv = document.getElementById("predicted-fare");
+  fareDiv.classList.add("d-none");
+  fareDiv.innerHTML = "";
+
+  const spinner = document.getElementById("spinner");
+  spinner.classList.remove("d-none");
+
+  const formData = new FormData(this);
+
+  try {
+    const response = await fetch("/api/predict/manual", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+    spinner.classList.add("d-none");
+
+    if (response.ok && data.results && data.results.length > 0) {
+      const fare = data.results[0].fare_usd;
+      fareDiv.innerHTML = `<strong>Estimated Fare:</strong> $${fare} USD`;
+      fareDiv.classList.remove("d-none");
+    } else {
+      fareDiv.innerHTML = "Prediction failed. Please check your input.";
+      fareDiv.classList.remove("d-none");
+    }
+  } catch (err) {
+    spinner.classList.add("d-none");
+    fareDiv.innerHTML = "Prediction failed. Please try again.";
+    fareDiv.classList.remove("d-none");
+  }
+});
+
+// --- Batch Form Prediction ---
+document.getElementById("upload-btn").addEventListener("click", async function() {
+  const batchDiv = document.getElementById("batch-results");
+  batchDiv.classList.add("d-none");
+  batchDiv.innerHTML = "";
+
+  const fileInput = document.getElementById("file-input");
+  if (!fileInput.files.length) {
+    batchDiv.innerHTML = "Please select a file first.";
+    batchDiv.classList.remove("d-none");
+    return;
+  }
+
+  const spinner = document.getElementById("spinner");
+  spinner.classList.remove("d-none");
+
+  const formData = new FormData();
+  formData.append("file", fileInput.files[0]);
+
+  try {
+    const response = await fetch("/api/predict", {
+      method: "POST",
+      body: formData
+    });
+    const data = await response.json();
+    spinner.classList.add("d-none");
+
+    if (response.ok && data.results && data.results.length > 0) {
+      let html = "<ul>";
+      data.results.forEach(r => {
+        html += `<li>Fare: $${r.fare_usd} USD</li>`;
+      });
+      html += "</ul>";
+      batchDiv.innerHTML = html;
+      batchDiv.classList.remove("d-none");
+    } else {
+      batchDiv.innerHTML = "Prediction failed. Please check your file.";
+      batchDiv.classList.remove("d-none");
+    }
+  } catch (err) {
+    spinner.classList.add("d-none");
+    batchDiv.innerHTML = "Prediction failed. Please try again.";
+    batchDiv.classList.remove("d-none");
+  }
+});
+</script>
+{% endblock %}
