@@ -1,8 +1,0 @@
-Flask==2.2.5
-joblib==1.5.2
-pandas
-scikit-learn
-numpy
-pandas
-gunicorn
-
