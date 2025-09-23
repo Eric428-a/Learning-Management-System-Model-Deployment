@@ -1,9 +1,0 @@
-{
-  "features": [
-    "distance_miles",
-    "passenger_count",
-    "hour_of_day",
-    "day_of_week",
-    "month"
-  ]
-}
